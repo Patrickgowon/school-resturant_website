@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   ShoppingCart, X, Plus, Minus, Trash2, Menu, Bell,
   Star, Clock, MapPin, Zap, Shield, Truck, ChevronRight,
@@ -779,6 +780,7 @@ function AuthModal({ mode, onClose, onSwitch, onSuccess }) {
 
 // ─── HOME PAGE ──────────────────────────────────────────────────────────────
 export default function HomePage() {
+  const navigate = useNavigate();
   const [cart, setCart] = useState([]);
   const [showCart, setShowCart] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState('all');
@@ -944,7 +946,7 @@ export default function HomePage() {
           mode={authModal}
           onClose={() => setAuthModal(null)}
           onSwitch={() => setAuthModal(authModal === 'login' ? 'register' : 'login')}
-          onSuccess={() => { window.location.href = '/student'; }}
+          onSuccess={() => navigate('/student')}
         />
       )}
     </div>
