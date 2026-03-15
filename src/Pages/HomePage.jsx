@@ -104,21 +104,48 @@ function Navbar({ cartCount, onCartClick, setAuthModal }) {
 
         {/* Mobile nav drawer */}
         {mobileOpen && (
-          <div className="md:hidden border-t border-green-100 py-4 space-y-1">
-            {['Menu', 'About', 'Contact'].map(l => (
-              <a key={l} href={`#${l.toLowerCase()}`} onClick={() => setMobileOpen(false)}
-                className="block px-3 py-2.5 text-sm font-medium text-gray-700 hover:bg-green-50 hover:text-green-700 rounded-xl transition-colors">
-                {l}
-              </a>
-            ))}
-            <div className="flex gap-2 pt-3 px-1">
-              <button onClick={() => { setAuthModal('login'); setMobileOpen(false); }}
-                className="flex-1 text-sm font-semibold text-green-700 py-2.5 rounded-xl border border-green-200 hover:bg-green-50 transition-all">
+          <div className="md:hidden border-t border-green-100 pb-5 pt-3">
+            {/* Nav links */}
+            <div className="space-y-0.5 mb-4">
+              {[
+                { label: 'Menu', href: '#menu' },
+                { label: 'About', href: '#features' },
+                { label: 'Contact', href: '#contact' },
+              ].map(l => (
+                <a key={l.label} href={l.href} onClick={() => setMobileOpen(false)}
+                  className="flex items-center justify-between px-4 py-3 text-sm font-medium text-gray-700 hover:bg-green-50 hover:text-green-700 rounded-xl transition-colors group">
+                  <span>{l.label}</span>
+                  <svg className="w-4 h-4 text-gray-300 group-hover:text-green-500 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                  </svg>
+                </a>
+              ))}
+            </div>
+
+            {/* Divider with label */}
+            <div className="flex items-center gap-3 px-4 mb-4">
+              <div className="flex-1 h-px bg-green-100" />
+              <span className="text-[11px] font-semibold text-gray-400 uppercase tracking-widest">Account</span>
+              <div className="flex-1 h-px bg-green-100" />
+            </div>
+
+            {/* Auth buttons */}
+            <div className="flex flex-col gap-2.5 px-1">
+              <button
+                onClick={() => { setAuthModal('login'); setMobileOpen(false); }}
+                className="w-full flex items-center justify-center gap-2 text-sm font-bold text-green-700 py-3 rounded-2xl border-2 border-green-200 bg-white hover:bg-green-50 active:scale-[0.98] transition-all shadow-sm">
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
+                </svg>
                 Login
               </button>
-              <button onClick={() => { setAuthModal('register'); setMobileOpen(false); }}
-                className="flex-1 text-sm font-bold text-white bg-green-600 hover:bg-green-700 py-2.5 rounded-xl transition-all">
-                Register
+              <button
+                onClick={() => { setAuthModal('register'); setMobileOpen(false); }}
+                className="w-full flex items-center justify-center gap-2 text-sm font-bold text-white py-3 rounded-2xl bg-green-600 hover:bg-green-700 active:scale-[0.98] transition-all shadow-lg shadow-green-200">
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
+                </svg>
+                Create Account
               </button>
             </div>
           </div>
@@ -579,9 +606,33 @@ function Footer() {
 }
 
 // ─── AUTH MODAL ────────────────────────────────────────────────────────────
-function AuthModal({ mode, onClose, onSwitch }) {
+function AuthModal({ mode, onClose, onSwitch, onSuccess }) {
   const [form, setForm] = useState({ name: '', email: '', password: '', matric: '' });
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
   const isLogin = mode === 'login';
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    setError('');
+
+    // Basic validation
+    if (!form.email || !form.password) {
+      setError('Please fill in all required fields.');
+      return;
+    }
+    if (!isLogin && (!form.name || !form.matric)) {
+      setError('Please fill in all required fields.');
+      return;
+    }
+
+    setLoading(true);
+    // Simulate API call — replace with your real auth logic
+    setTimeout(() => {
+      setLoading(false);
+      onSuccess(); // redirect to /student
+    }, 1200);
+  };
 
   return (
     <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4">
@@ -613,8 +664,18 @@ function AuthModal({ mode, onClose, onSwitch }) {
             </button>
           </div>
 
+          {/* Error message */}
+          {error && (
+            <div className="flex items-center gap-2 bg-red-50 border border-red-200 text-red-600 text-xs font-semibold px-3 py-2.5 rounded-xl mb-4">
+              <svg className="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" />
+              </svg>
+              {error}
+            </div>
+          )}
+
           {/* Form */}
-          <div className="space-y-3">
+          <form onSubmit={handleSubmit} className="space-y-3">
             {!isLogin && (
               <div>
                 <label className="text-xs font-semibold text-gray-600 mb-1 block">Full Name</label>
@@ -646,7 +707,7 @@ function AuthModal({ mode, onClose, onSwitch }) {
             <div>
               <div className="flex justify-between items-center mb-1">
                 <label className="text-xs font-semibold text-gray-600">Password</label>
-                {isLogin && <button className="text-xs text-green-600 font-semibold hover:text-green-800">Forgot password?</button>}
+                {isLogin && <button type="button" className="text-xs text-green-600 font-semibold hover:text-green-800">Forgot password?</button>}
               </div>
               <input
                 type="password" placeholder="••••••••"
@@ -665,8 +726,20 @@ function AuthModal({ mode, onClose, onSwitch }) {
             )}
 
             <button
-              className="w-full bg-green-600 hover:bg-green-700 active:scale-[0.98] text-white font-bold py-3 rounded-2xl text-sm transition-all shadow-lg shadow-green-200 mt-1">
-              {isLogin ? 'Sign In' : 'Create Account'}
+              type="submit"
+              disabled={loading}
+              className="w-full bg-green-600 hover:bg-green-700 active:scale-[0.98] disabled:opacity-70 disabled:cursor-not-allowed text-white font-bold py-3 rounded-2xl text-sm transition-all shadow-lg shadow-green-200 mt-1 flex items-center justify-center gap-2">
+              {loading ? (
+                <>
+                  <svg className="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4l3-3-3-3v4a8 8 0 00-8 8h4z" />
+                  </svg>
+                  {isLogin ? 'Signing in…' : 'Creating account…'}
+                </>
+              ) : (
+                isLogin ? 'Sign In' : 'Create Account'
+              )}
             </button>
 
             {/* Divider */}
@@ -677,7 +750,10 @@ function AuthModal({ mode, onClose, onSwitch }) {
             </div>
 
             {/* Google */}
-            <button className="w-full flex items-center justify-center gap-2.5 border border-gray-200 text-gray-700 font-semibold text-sm py-2.5 rounded-2xl hover:bg-gray-50 transition-all">
+            <button
+              type="button"
+              onClick={onSuccess}
+              className="w-full flex items-center justify-center gap-2.5 border border-gray-200 text-gray-700 font-semibold text-sm py-2.5 rounded-2xl hover:bg-gray-50 transition-all">
               <svg viewBox="0 0 24 24" className="w-4 h-4" xmlns="http://www.w3.org/2000/svg">
                 <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
                 <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
@@ -686,12 +762,12 @@ function AuthModal({ mode, onClose, onSwitch }) {
               </svg>
               Continue with Google
             </button>
-          </div>
+          </form>
 
           {/* Switch mode */}
           <p className="text-center text-sm text-gray-500 mt-5">
             {isLogin ? "Don't have an account? " : 'Already have an account? '}
-            <button onClick={onSwitch} className="text-green-600 font-bold hover:text-green-800 transition-colors">
+            <button type="button" onClick={onSwitch} className="text-green-600 font-bold hover:text-green-800 transition-colors">
               {isLogin ? 'Register' : 'Sign in'}
             </button>
           </p>
@@ -868,6 +944,7 @@ export default function HomePage() {
           mode={authModal}
           onClose={() => setAuthModal(null)}
           onSwitch={() => setAuthModal(authModal === 'login' ? 'register' : 'login')}
+          onSuccess={() => { window.location.href = '/student'; }}
         />
       )}
     </div>
